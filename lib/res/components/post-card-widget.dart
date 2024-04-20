@@ -1,0 +1,353 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:nomo_app/res/assets/assets.dart';
+import 'package:nomo_app/res/colors/appcolors.dart';
+import 'package:nomo_app/res/components/ProfileWidgets/comment-bottom-sheet.dart';
+import 'package:nomo_app/res/components/ProfileWidgets/custom-post-buttons.dart';
+import 'package:nomo_app/screens/profiles/likes-screen.dart';
+import 'package:nomo_app/screens/profiles/user-public-view-profile-screen.dart';
+import 'package:nomo_app/screens/storyScreen/stories-section.dart';
+import 'package:nomo_app/screens/storyScreen/story-page-view.dart';
+
+class PostCardWidget extends StatefulWidget {
+  const PostCardWidget({super.key});
+
+  @override
+  State<PostCardWidget> createState() => _PostCardWidgetState();
+}
+
+Timer? _clickTimer;
+const int doubleClickIntervalMs = 2000;
+
+void onProfileImageClicked() {
+  if (_clickTimer == null) {
+    navigateToStoriesScreen();
+
+    _clickTimer =
+        Timer(const Duration(milliseconds: doubleClickIntervalMs), () {
+      _clickTimer = null;
+    });
+  } else {
+    _clickTimer!.cancel();
+    _clickTimer = null;
+    navigateToUserProfile();
+  }
+}
+
+void navigateToStoriesScreen() {
+  Get.to(() => const StoryPageView(isUserStoryOwner: false));
+  print("Navigating to Stories Screen");
+  // Example: Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoriesScreen()));
+}
+
+void navigateToUserProfile() {
+  Get.to(() => const UserPublicViewProfileScreen());
+  print("Navigating to User's Profile");
+  // Example: Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserProfileScreen()));
+}
+
+class _PostCardWidgetState extends State<PostCardWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.fromLTRB(20.w, 10.h, 20.w, 0),
+          constraints: const BoxConstraints(maxHeight: double.infinity),
+          width: double.infinity,
+          decoration: BoxDecoration(
+              // borderRadius: BorderRadius.circular(15.r),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15.r),
+                topRight: Radius.circular(15.r),
+              ),
+              color: AppColors.white,
+              border: Border(
+                  left: BorderSide(
+                      color: const Color(0xffCDCDCD).withOpacity(0.2),
+                      width: 1),
+                  right: BorderSide(
+                      color: const Color(0xffCDCDCD).withOpacity(0.2),
+                      width: 1),
+                  top: BorderSide(
+                      color: const Color(0xffCDCDCD).withOpacity(0.2),
+                      width: 1))),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 11.h),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 16,
+                      child: Row(
+                        children: [
+                          CustomPaint(
+                            painter: DottedBorder(
+                                numberOfStories: 5, spaceLength: 4),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: GestureDetector(
+                                onTap: onProfileImageClicked,
+                                child: const CircleAvatar(
+                                  radius: 22,
+                                  backgroundImage: AssetImage(
+                                    Assets.userProfile,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          8.horizontalSpace,
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RichText(
+                                  text: TextSpan(children: [
+                                const TextSpan(
+                                    text: 'Faz Sam ',
+                                    style: TextStyle(
+                                        color: AppColors.blackColor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Montserrat')),
+                                const TextSpan(
+                                    text: 'checked in to ',
+                                    style: TextStyle(
+                                        color: Color(0xff6F6E6E),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Montserrat')),
+                                TextSpan(
+                                    text: 'Abu Dhabi.',
+                                    style: TextStyle(
+                                        color: AppColors.blackColor,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Montserrat')),
+                              ])),
+                              3.verticalSpace,
+                              Row(
+                                children: [
+                                  const Text('5 May, 2023',
+                                      style: TextStyle(
+                                          color: AppColors.blackColor,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Montserrat')),
+                                  4.horizontalSpace,
+                                  SvgPicture.asset(Assets.worldIcon)
+                                ],
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          popupMenuTheme: PopupMenuThemeData(
+                            shape: RoundedRectangleBorder(
+                              side: const BorderSide(
+                                  color: AppColors.neutralGray, width: 0.5),
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                            elevation: 0.5,
+                          ),
+                        ),
+                        child: PopupMenuButton(
+                          padding: EdgeInsets.zero,
+                          color: AppColors.white,
+                          icon: const Icon(Icons.more_vert,
+                              color: AppColors.blackColor),
+                          itemBuilder: (context) {
+                            return [
+                              PopupMenuItem(
+                                padding: EdgeInsets.zero,
+                                value: 'delete',
+                                child: Container(
+                                  height: 43,
+                                  width: double.infinity,
+                                  decoration: const BoxDecoration(
+                                      gradient: AppColors.gradientColor),
+                                  child: const Center(
+                                    child: Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.white,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Center(
+                                  child: Text(
+                                    'Edit',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.blackColor,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ),
+                            ];
+                          },
+                          onSelected: (String value) {
+                            print('You Click on pop up menu item');
+                          },
+                        ),
+                      ),
+                    )
+                    // const Expanded(child: Icon(Icons.more_vert))
+                  ],
+                ),
+                8.verticalSpace,
+                Text('Grand Mercure Hotel...',
+                    style: TextStyle(
+                        color: AppColors.blackColor,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Montserrat')),
+                2.verticalSpace,
+                const Text(
+                    'Lorem ipsum dolor sit amet consectetur adipiscing elit.',
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(
+                        color: Color(0xff6F6E6E),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Montserrat')),
+                7.verticalSpace,
+                AspectRatio(
+                  aspectRatio: 22 / 8,
+                  child: Container(
+                    height: 80.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        image: const DecorationImage(
+                            image: AssetImage(Assets.googleMap),
+                            fit: BoxFit.cover),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12.r),
+                          topRight: Radius.circular(12.r),
+                        )),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Container(
+            // height: Get.height * .08,
+            width: double.infinity,
+            margin: EdgeInsets.fromLTRB(20.w, 0, 20.w, 10),
+            padding: EdgeInsets.fromLTRB(16.w, 6.h, 16.w, 10.h),
+            constraints: const BoxConstraints(maxHeight: double.infinity),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15.r),
+                bottomRight: Radius.circular(15.r),
+              ),
+              border: Border(
+                  left: BorderSide(
+                      color: const Color(0xffCDCDCD).withOpacity(0.2),
+                      width: 1),
+                  right: BorderSide(
+                      color: const Color(0xffCDCDCD).withOpacity(0.2),
+                      width: 1),
+                  top: BorderSide(
+                      color: const Color(0xffCDCDCD).withOpacity(0.2),
+                      width: 1)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xffCDCDCD).withOpacity(0.2),
+                  spreadRadius: 0,
+                  blurRadius: 3,
+                  offset: const Offset(0, 3),
+                ),
+                BoxShadow(
+                  color: const Color(0xffCDCDCD).withOpacity(0.1),
+                  spreadRadius: 0,
+                  blurRadius: 3,
+                  offset: const Offset(0, -3),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                7.verticalSpace,
+                RichText(
+                    text: TextSpan(children: [
+                  const TextSpan(
+                      text: 'Liked by ',
+                      style: TextStyle(
+                          color: Color(0xff6F6E6E),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat')),
+                  TextSpan(
+                      text: 'Christa Lenz ',
+                      style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat')),
+                  const TextSpan(
+                      text: 'and ',
+                      style: TextStyle(
+                          color: Color(0xff6F6E6E),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat')),
+                  TextSpan(
+                      text: '12 others',
+                      style: TextStyle(
+                          color: AppColors.blackColor,
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Montserrat')),
+                ])),
+                4.verticalSpace,
+                const Divider(
+                  color: Color(0xffEDEFEF),
+                  thickness: 2,
+                ),
+                4.verticalSpace,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    LikeButton(onTap: () async {
+                      // await playSound();
+                      Get.to(() => const LikesScreen(),
+                          transition: Transition.fadeIn,
+                          duration: const Duration(milliseconds: 400));
+                    }),
+                    50.horizontalSpace,
+                    CommentButton(onTap: () {
+                      showCommentBottomSheet(context);
+                    })
+                  ],
+                )
+              ],
+            ))
+      ],
+    );
+  }
+}
